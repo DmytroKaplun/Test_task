@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-
+@Data
 public class DocumentManager {
     private final Map<String, Document> documents = new HashMap<>();
 
