@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -19,9 +20,8 @@ class DocumentManagerTest {
         documentManager = new DocumentManager();
         testDocuments = generateDocs();
 
-        testDocuments.forEach(doc -> {
-            documentManager.save(doc);
-        });
+        Map<String, DocumentManager.Document> documentsMap = documentManager.getDocuments();
+        testDocuments.forEach(doc -> documentsMap.put(doc.getId(), doc));
     }
 
     @Test
