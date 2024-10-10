@@ -24,18 +24,11 @@ public class DocumentManager {
 
     public List<Document> search(SearchRequest request) {
         return documents.values().stream()
-                .filter(document ->
-                        (request.titlePrefixes == null || request.titlePrefixes.stream()
-                                .anyMatch(prefix -> document.title != null &&
-                                        document.title.startsWith(prefix))) &&
-                        (request.containsContents == null || request.containsContents.stream()
-                                .allMatch(content -> document.content != null &&
-                                        document.content.contains(content))) &&
-                        (request.authorIds == null || request.authorIds.stream()
-                                .anyMatch(id -> id.equals(document.author.id))) &&
-                        (request.createdTo == null || document.created.isBefore(request.createdTo)) &&
-                        (request.createdFrom == null || document.created.isAfter(request.createdFrom))
-                )
+                .filter(document -> isMatchedPrefix(document, request.getTitlePrefixes()))
+                .filter(document -> isMatchedContent(document, request.getContainsContents()))
+                .filter(document -> isMatchedAuthors(document, request.getAuthorIds()))
+                .filter(document -> isMatchedCreatedFrom(document, request.getCreatedFrom()))
+                .filter(document -> isMatchedCreatedTo(document, request.getCreatedTo()))
                 .sorted(Comparator.comparing(Document::getId))
                 .toList();
     }
@@ -69,5 +62,30 @@ public class DocumentManager {
     public static class Author {
         private String id;
         private String name;
+    }
+
+    private boolean isMatchedContent(Document document, List<String> containsContents) {
+        return containsContents == null || containsContents.stream()
+                .allMatch(content -> document.content != null &&
+                        document.content.contains(content));
+    }
+
+    private boolean isMatchedPrefix(Document document, List<String> titlePrefixes) {
+        return titlePrefixes == null || titlePrefixes.stream()
+                .anyMatch(prefix -> document.title != null &&
+                        document.title.startsWith(prefix));
+    }
+
+    private boolean isMatchedAuthors(Document document, List<String> authorIds) {
+        return authorIds == null || authorIds.stream()
+                .anyMatch(id -> id.equals(document.author.id));
+    }
+
+    private boolean isMatchedCreatedFrom(Document document, Instant createdFrom) {
+        return createdFrom == null || document.created.isAfter(createdFrom);
+    }
+
+    private boolean isMatchedCreatedTo(Document document, Instant createdTo) {
+        return createdTo == null || document.created.isBefore(createdTo);
     }
 }
